@@ -1,6 +1,5 @@
-
-const button = document.querySelector('.button-50');
+const button = document.getElementById("button-50");
 
 button.addEventListener('click', () => {
-  window.open('assets/Resume of Sheenna Lee.pdf', '_blank');
+  window.open('assets/resume_sheenna_lee.pdf', '_blank');
 });
