@@ -3,47 +3,6 @@
 <head>
 	<title>Sheenna's Site</title>
 	<link rel="stylesheet" href="style.css">
-	<script src="additional.js"></script>
-	<style>
-		body {
-			margin: 0;
-			padding: 0;
-			/* background-image: url('assets/burst-bg.png'); */
-			background-size: auto;
-			background-color: #030b07;
-		}
-
-		.container {
-			margin: 0 auto;
-			padding: 1px;
-			max-width: 900px;
-			max-height: fit-content;
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: center;
-			align-items: stretch;
-		}
-		
-		.column {
-			flex-basis: 50%;
-			padding: 0 10px;
-			text-align: left;
-			background-color: #f9f9f9;
-			box-sizing: border-box;
-		}
-		
-		.column h2 {
-			font-size: 24px;
-			margin-bottom: 20px;
-
-		}
-		
-		.column p {
-			font-size: 13.5px;
-			line-height: 1.5;
-			margin-bottom: 30px;
-		}
-	</style>
 </head>
 <body>
 	<div class="container">
@@ -52,33 +11,45 @@
 			<h1>Sheenna Lee</h1>
 			<h3>Software Engineer</h3>
 			<br>
-			<button id="button-50" class="button-50" role="button">Resume</button>
+			<button id="button-50" class="button-50" role="button" onclick="window.open('assets/resume_sheenna_lee.pdf', '_blank')">Resume</button>  &nbsp&nbsp
+			<button class="button-50" role="button" onclick="window.open('https://github.com/sheenna', '_blank')">Github</button> &nbsp&nbsp
+			<button class="button-50" role="button" onclick="window.open('https://www.linkedin.com/in/sheenna/', '_blank')">LinkedIn</button>
+
 			<br><br>
 			<h3>About Me</h3>
-			<p>I'm a college senior pursuing a degree in Computer Science and graduating in October this year. I'm comfortable coding in Java, Python, C++, HTML, CSS, MySQL, and PostgreSQL. I am particularly interested in linguistics and narrative media. </p>
+			<p>I'm a Computer Science college senior with too many interests and too little time.<br>
+			Currently looking for an internship opportunity - I'd love to learn as much as I can!<br><br><small>
+			I'm currently reading <s>(and scribbling outraged margin notes in!)</s><br> <i> Invisible Women: Data Bias in a World Designed For Men</i><br>
+			
+			Some of my interests that come to mind are linguistics, visual and narrative media, poetry, database design, gardening, and the new daily math puzzle Digits by The New York Times<br>
+			
+			I am a firm believer that everyone has something they're just a little bit of an expert in, something they're excited about - I want to be the person hearing about it, making ideas come to life, and bringing people closer to their dreams.
+		<br>(Updated May 2023)</small></p>
 			<h3>Education</h3>
 			<p><b>Bachelors of Science, Computer Science</b><br>Western Governors University<br>Expected Graduation: October 2023 </p>
 			<h3>Certifications and Skills</h3>
 			<p><b>IT Information Library Foundations (ITIL)</b><br>Axelos<br>November 2020<br><br><b>Project+</b><br>CompTIA<br>March 2019<br><br>
-				<b>Programming Languages:</b> Java, Python, C++, SQL (MySQL, PostgreSQL)<br>
-				<b>Tools:</b> Git, GitHub, VS Code, Visual Studio<br>
-				<b>Software Development Methodologies:</b> Agile (Scrum, Kanban), Test-Driven Development (TDD), Continuous Integration & Continuous Deployment (CI/CD)</p>
+			<b>Programming Languages:</b> Java, Python, C++, SQL (MySQL, PostgreSQL)<br>
+			<b>Tools:</b> Git, GitHub, VS Code, Visual Studio<br>
+			<b>Software Development Methodologies:</b> Agile (Scrum, Kanban), Test-Driven Development (TDD), Continuous Integration & Continuous Deployment (CI/CD)</p>
 		</div>
 		 <div class="column">
 			<br>
 			<h3>Projects</h3>
+			<div style="text-align: center;"><img src="assets/crmapplp.png" alt="CRM Application Preview" class="image"></div>
 			<p><b>CRM Application</b> 
-				<br>Java, JavaFX, MySQL Server 8	<br>January 2023<br>
-				• Java application for appointment and customer management, uses JDBC to connect to external MySQL database for all relevant data, and uses JavaFX for a user-friendly GUI. Includes appointment and customer creation or modification, reminder notifications, input validation, login authentication, and simple report creation.<br><br>
-				
-				<b>Inventory Management Application</b> 
-					<br>Java, JavaFX	<br>February 2021<br>
-				• Java application that manages parts and products for an inventory management system, uses JavaFX for a user-friendly GUI. Ability to add custom parts and products with auto-generated IDs as well as selecting vendors..</p>
+			<br>Java, JavaFX, MySQL Server 8	<br>January 2023<br>
+			• Java application for appointment and customer management, uses JDBC to connect to external MySQL database for all relevant data, and uses JavaFX for a user-friendly GUI. Includes appointment and customer creation or modification, reminder notifications, input validation, login authentication, and simple report creation.<br><br></p>
+			
+			<div style="text-align: center;"><img src="assets/invmgmtp.png" alt="Inventory Management Application Preview" class="image"></div>
+			<p><b>Inventory Management Application</b> 
+			<br>Java, JavaFX	<br>February 2021<br>
+			• Java application that manages parts and products for an inventory management system, uses JavaFX for a user-friendly GUI. Ability to add custom parts and products with auto-generated IDs as well as selecting vendors.</p>
 			<h3>Experience</h3>
 			<p><b>Service Manager</b><br>CS2K Services, Upland, CA	<br>October 2021 to <i>present</i><br>
-				• Managed a team of technicians, overseeing workflow and quality assurance for 50-100 simultaneous IT support projects across Windows, Mac, and Linux platforms and network infrastructures.<br>
-				• Served as primary customer liaison, discerning client objectives, translating them into actionable plans, and ensuring efficient project delivery.<br>
-				• Facilitated major software systems update and full-scale administrative overhaul with process improvements and training in help desk software and project management tools, resulting in a 28% increase in technician efficiency and 94% customer satisfaction rate.</p>
+			• Managed a team of technicians, overseeing workflow and quality assurance for 50-100 simultaneous IT support projects across Windows, Mac, and Linux platforms and network infrastructures.<br>
+			• Served as primary customer liaison, discerning client objectives, translating them into actionable plans, and ensuring efficient project delivery.<br>
+			• Facilitated major software systems update and full-scale administrative overhaul with process improvements and training in help desk software and project management tools, resulting in a 28% increase in technician efficiency and 94% customer satisfaction rate.</p>
 		</div>
 	</div>
 	<footer class="footer"> 
