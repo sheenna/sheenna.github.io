@@ -76,14 +76,18 @@
     0%{opacity:0}8%{opacity:.35}16%{opacity:0}24%{opacity:.6}32%{opacity:.15}
     44%{opacity:.85}56%{opacity:.4}68%{opacity:1}80%{opacity:.7}100%{opacity:1}
   }
-  .kicker{font-family:'Doto',monospace;font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
-  h1{font-family:'Doto',monospace;font-weight:700;font-size:clamp(32px,4.2vw,52px);line-height:1.02;letter-spacing:.01em}
+  .kicker{font-family:'Doto',monospace;font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-family:'Doto',monospace;font-weight:700;font-size:clamp(28px,3.3vw,40px);line-height:1.05;letter-spacing:.01em}
   h2{font-family:'Doto',monospace;font-weight:700;font-size:clamp(28px,4vw,46px);letter-spacing:.02em;margin-bottom:22px}
   .lead{font-size:clamp(15px,1.6vw,18px);max-width:560px;color:var(--ink);margin-top:20px;line-height:1.7}
   .lead .ln{color:var(--blue);text-decoration:none;border-bottom:1px solid var(--blue)}
   .muted{color:var(--muted)}
+  .bio{max-width:600px;margin-top:14px;font-size:clamp(13px,1.3vw,14.5px);line-height:1.55;color:var(--ink)}
+  .bio p{margin-bottom:9px}
+  .bio p:last-child{margin-bottom:0}
+  .bio .sign{color:var(--muted);font-style:italic;margin-top:2px}
 
-  .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+  .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
   .btn{font-size:13px;font-weight:500;text-decoration:none;padding:11px 20px;border-radius:6px;border:1px solid var(--ink);color:var(--ink);background:var(--surface);transition:transform .1s,box-shadow .15s,background .15s,color .15s;display:inline-block;letter-spacing:.02em}
   .btn:active{transform:translateY(1px)}
   .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -92,6 +96,7 @@
 
   /* Home */
   .home{display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center}
+  .panel.home{overflow-y:auto}
   .pud{display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none}
   .pud img{width:min(290px,30vw);height:auto;display:block;filter:drop-shadow(0 16px 20px rgba(30,40,40,.22));cursor:pointer;animation:float 5s ease-in-out infinite;border-radius:12px}
   .pud img:hover{animation:jiggle .6s ease}
@@ -216,8 +221,14 @@
     <section class="panel active home" data-panel="0">
       <div>
         <p class="kicker">systems &amp; software engineer</p>
-        <h1>Hi, I'm<br>Sheenna.</h1>
-        <p class="lead">I build systems that make work quieter: automation, IT operations, and tools people actually like using. Off the clock I read, draw, and get lost in live-action D&amp;D. I also sculpt <a class="ln" data-goto="2">3D pudding</a>.</p>
+        <h1>Hi, I'm Sheenna.</h1>
+        <div class="bio">
+          <p>I'm a computer science graduate with too many interests and too little time.</p>
+          <p>By day, I'm the sole IT engineer for a distribution center in Ontario, CA. I keep an entire warehouse's systems, scanners, and printers running, and I automate the boring parts wherever I can. Before this, I supported a county behavioral health department of over a thousand employees, and before that I managed a technician team at an IT solutions company. Somewhere along the way I became the person people come to when something's broken, or when they want a second pair of eyes on a document. I take pride in both.</p>
+          <p>I started college as an English major and switched to computer science because I wanted to challenge myself with something I didn't think I was predisposed to. It turns out I love problem solving. The harder the problem and the clearer the goal, the happier I am. I still read like an English major, though (triple digits annually, and yes, I keep count).</p>
+          <p>I'm a firm believer that everyone has something they're just a little bit of an expert in, something they're excited about. I want to be the person hearing about it, making ideas come to life, and leaving behind documentation that sticks.</p>
+          <p class="sign">When I'm 90, I want to be curled up in a cozy blanket reading webtoons.</p>
+        </div>
         <div class="actions">
           <a class="btn btn-primary" href="assets/Resume_Sheenna202508.pdf" target="_blank" rel="noopener">Resume ↗</a>
           <a class="btn" data-goto="5" href="#">Get in touch</a>
