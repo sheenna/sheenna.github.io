@@ -387,7 +387,7 @@
   // Google Books = secondary source: fills covers Open Library lacks, and searches when OL finds nothing.
   // GBKEY is optional; keyless works but shares a rate-limited quota. Get a free key at
   // console.cloud.google.com (enable "Books API"), restrict it to sheenna.github.io, paste below.
-  const GB='https://www.googleapis.com/books/v1/volumes', GBKEY='';
+  const GB='https://www.googleapis.com/books/v1/volumes', GBKEY='AIzaSyBts6GDvk-_c804G-SVDj37_XfYa82H6wk';
   const gbUrl=q=>GB+'?q='+encodeURIComponent(q)+'&maxResults=6&country=US'+(GBKEY?'&key='+GBKEY:'');
   const gbCoverFrom=vi=>{const il=vi&&vi.imageLinks,s=il&&(il.thumbnail||il.smallThumbnail);return s?s.replace(/^http:/,'https:').replace('&edge=curl',''):null;};
   async function gbCover(title,author){
