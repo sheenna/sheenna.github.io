@@ -382,7 +382,25 @@
 
   // ===================== Book Club =====================
   const OL='https://openlibrary.org/search.json';
-  const coverUrl=(id,sz)=> id ? 'https://covers.openlibrary.org/b/id/'+id+'-'+sz+'.jpg' : '';
+  // cover_id is an Open Library numeric id, OR a full http(s) URL (e.g. a Google Books thumbnail)
+  const coverUrl=(id,sz)=> !id ? '' : (/^https?:/.test(id) ? id : 'https://covers.openlibrary.org/b/id/'+id+'-'+sz+'.jpg');
+  // Google Books = secondary source: fills covers Open Library lacks, and searches when OL finds nothing.
+  // GBKEY is optional; keyless works but shares a rate-limited quota. Get a free key at
+  // console.cloud.google.com (enable "Books API"), restrict it to sheenna.github.io, paste below.
+  const GB='https://www.googleapis.com/books/v1/volumes', GBKEY='';
+  const gbUrl=q=>GB+'?q='+encodeURIComponent(q)+'&maxResults=6&country=US'+(GBKEY?'&key='+GBKEY:'');
+  const gbCoverFrom=vi=>{const il=vi&&vi.imageLinks,s=il&&(il.thumbnail||il.smallThumbnail);return s?s.replace(/^http:/,'https:').replace('&edge=curl',''):null;};
+  async function gbCover(title,author){
+    try{const r=await fetch(gbUrl('intitle:'+title+(author?' inauthor:'+author:'')));const j=await r.json();
+      for(const it of (j.items||[])){const c=gbCoverFrom(it.volumeInfo);if(c)return c;}}catch(e){}
+    return null;
+  }
+  async function gbSearch(title,author){
+    try{const r=await fetch(gbUrl('intitle:'+title+(author?' inauthor:'+author:'')));const j=await r.json();
+      return (j.items||[]).slice(0,6).map(it=>{const vi=it.volumeInfo||{};
+        return {title:vi.title||'',author:(vi.authors&&vi.authors[0])||'',year:(vi.publishedDate||'').slice(0,4),cover:gbCoverFrom(vi)};});
+    }catch(e){return [];}
+  }
   const shelf=document.getElementById('shelf');
   const tIn=document.getElementById('sTitle'),aIn=document.getElementById('sAuthor'),drop=document.getElementById('taDrop');
   const sMsg=document.getElementById('sMsg'),sf=document.getElementById('suggestForm');
@@ -425,28 +443,35 @@
 
   // typeahead search (title, narrowed by author when given)
   let selCover=null,tmr=null;
+  function renderDrop(rows){
+    if(!rows.length){drop.classList.remove('open');drop.innerHTML='';return;}
+    drop.innerHTML='';
+    rows.forEach(d=>{
+      const it=document.createElement('div');it.className='ta-item';
+      it.innerHTML='<img alt=""><div><div class="ti"></div><div class="ta-au"></div></div>';
+      const img=it.querySelector('img');
+      const setImg=c=>{if(c){img.src=coverUrl(c,'S');img.onerror=()=>img.style.visibility='hidden';img.style.visibility='';}else{img.style.visibility='hidden';}};
+      setImg(d.cover);
+      it.querySelector('.ti').textContent=d.title;
+      it.querySelector('.ta-au').textContent=[d.author,d.year].filter(Boolean).join(' · ');
+      if(!d.cover)gbCover(d.title,d.author).then(c=>{if(c){d.cover=c;setImg(c);}}); // backfill from Google Books
+      it.addEventListener('click',()=>{tIn.value=d.title;if(d.author)aIn.value=d.author;selCover=d.cover||null;drop.classList.remove('open');});
+      drop.appendChild(it);
+    });
+    drop.classList.add('open');
+  }
   function runSearch(){
     selCover=null;const q=tIn.value.trim();const av=aIn.value.trim();clearTimeout(tmr);
     if(q.length<3){drop.classList.remove('open');drop.innerHTML='';return;}
     tmr=setTimeout(async()=>{
+      let rows=[];
       try{
         const r=await fetch(OL+'?title='+encodeURIComponent(q)+(av?'&author='+encodeURIComponent(av):'')+'&limit=6&fields=title,author_name,cover_i,first_publish_year');
-        const j=await r.json();const docs=(j.docs||[]).slice(0,6);
-        if(!docs.length){drop.classList.remove('open');return;}
-        drop.innerHTML='';
-        docs.forEach(d=>{
-          const it=document.createElement('div');it.className='ta-item';
-          const au=(d.author_name&&d.author_name[0])||'';const yr=d.first_publish_year||'';
-          it.innerHTML='<img alt=""><div><div class="ti"></div><div class="ta-au"></div></div>';
-          const img=it.querySelector('img');
-          if(d.cover_i){img.src=coverUrl(d.cover_i,'S');img.onerror=()=>img.style.visibility='hidden';}else{img.style.visibility='hidden';}
-          it.querySelector('.ti').textContent=d.title;
-          it.querySelector('.ta-au').textContent=[au,yr].filter(Boolean).join(' · ');
-          it.addEventListener('click',()=>{tIn.value=d.title;aIn.value=au;selCover=d.cover_i||null;drop.classList.remove('open');});
-          drop.appendChild(it);
-        });
-        drop.classList.add('open');
-      }catch(e){drop.classList.remove('open');}
+        const j=await r.json();
+        rows=(j.docs||[]).slice(0,6).map(d=>({title:d.title,author:(d.author_name&&d.author_name[0])||'',year:d.first_publish_year||'',cover:d.cover_i||null}));
+      }catch(e){}
+      if(!rows.length)rows=await gbSearch(q,av); // Open Library found nothing → Google Books
+      renderDrop(rows);
     },300);
   }
   tIn.addEventListener('input',runSearch);
@@ -459,6 +484,7 @@
     const t=tIn.value.trim();if(!t)return;const a=aIn.value.trim();
     let cover=selCover;
     if(!cover){try{const r=await fetch(OL+'?title='+encodeURIComponent(t)+(a?'&author='+encodeURIComponent(a):'')+'&limit=1&fields=cover_i');const j=await r.json();cover=(j.docs&&j.docs[0]&&j.docs[0].cover_i)||null;}catch(e){}}
+    if(!cover)cover=await gbCover(t,a); // last resort: Google Books cover
     if(LIVE){
       const c=document.getElementById('sComment').value.trim();
       const {data,error}=await sb.from('book_suggestions').insert({title:t,author:a||null,cover_id:cover?String(cover):null,comment:c||null}).select();
