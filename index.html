@@ -423,14 +423,14 @@
     sb.channel('bc').on('postgres_changes',{event:'INSERT',schema:'public',table:'book_suggestions'},p=>addCard(p.new)).subscribe();
   }
 
-  // typeahead search
+  // typeahead search (title, narrowed by author when given)
   let selCover=null,tmr=null;
-  tIn.addEventListener('input',()=>{
-    selCover=null;const q=tIn.value.trim();clearTimeout(tmr);
+  function runSearch(){
+    selCover=null;const q=tIn.value.trim();const av=aIn.value.trim();clearTimeout(tmr);
     if(q.length<3){drop.classList.remove('open');drop.innerHTML='';return;}
     tmr=setTimeout(async()=>{
       try{
-        const r=await fetch(OL+'?title='+encodeURIComponent(q)+'&limit=6&fields=title,author_name,cover_i,first_publish_year');
+        const r=await fetch(OL+'?title='+encodeURIComponent(q)+(av?'&author='+encodeURIComponent(av):'')+'&limit=6&fields=title,author_name,cover_i,first_publish_year');
         const j=await r.json();const docs=(j.docs||[]).slice(0,6);
         if(!docs.length){drop.classList.remove('open');return;}
         drop.innerHTML='';
@@ -448,7 +448,9 @@
         drop.classList.add('open');
       }catch(e){drop.classList.remove('open');}
     },300);
-  });
+  }
+  tIn.addEventListener('input',runSearch);
+  aIn.addEventListener('input',runSearch);
   document.addEventListener('click',e=>{if(!drop.contains(e.target)&&e.target!==tIn)drop.classList.remove('open');});
 
   // submit: insert into Supabase (live) or fall back to a GitHub issue
@@ -456,7 +458,7 @@
     e.preventDefault();
     const t=tIn.value.trim();if(!t)return;const a=aIn.value.trim();
     let cover=selCover;
-    if(!cover){try{const r=await fetch(OL+'?title='+encodeURIComponent(t)+'&limit=1&fields=cover_i');const j=await r.json();cover=(j.docs&&j.docs[0]&&j.docs[0].cover_i)||null;}catch(e){}}
+    if(!cover){try{const r=await fetch(OL+'?title='+encodeURIComponent(t)+(a?'&author='+encodeURIComponent(a):'')+'&limit=1&fields=cover_i');const j=await r.json();cover=(j.docs&&j.docs[0]&&j.docs[0].cover_i)||null;}catch(e){}}
     if(LIVE){
       const c=document.getElementById('sComment').value.trim();
       const {data,error}=await sb.from('book_suggestions').insert({title:t,author:a||null,cover_id:cover?String(cover):null,comment:c||null}).select();
