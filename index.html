@@ -1,69 +1,480 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<title>Sheenna's Site</title>
-	<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sheenna Lee</title>
+<meta name="description" content="Sheenna Lee - systems & software engineer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fdfbfb;          /* soft near-white */
+    --bg-2:#f4f1f1;
+    --surface:#ffffff;
+    --ink:#1e201b;
+    --muted:#77746f;
+    --line:#e7e3e3;
+    --accent:#2f6f66;      /* cool teal, terminal-ish */
+    --accent-soft:#e0ebe7;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Geist Pixel',sans-serif!important}
+  html,body{height:100%}
+  body{
+    font-family:'JetBrains Mono',ui-monospace,monospace;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  .doto{font-family:'Doto',monospace;font-weight:700}
+  .app{height:100vh;display:grid;grid-template-columns:270px 1fr}
+
+  /* ---------- Sidebar / pager ---------- */
+  aside{
+    border-right:1px solid var(--line);
+    padding:34px 30px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    background:linear-gradient(180deg,var(--surface),var(--bg));
+  }
+  .name{font-family:'Doto',monospace;font-weight:900;font-size:30px;line-height:1;letter-spacing:.02em}
+  .role{color:var(--muted);font-size:12px;margin-top:8px;letter-spacing:.02em}
+  .clock{font-family:'Doto',monospace;font-weight:700;font-size:20px;color:var(--accent);margin-top:22px;letter-spacing:.05em}
+  .clock .d{font-size:11px;color:var(--muted);letter-spacing:.14em;display:block;margin-top:2px}
+
+  .pager{display:flex;flex-direction:column;gap:1px;margin-top:34px}
+  .pager button{
+    all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;
+    font-size:13px;color:var(--muted);padding:9px 0;transition:color .15s,padding .18s;letter-spacing:.03em;
+  }
+  .pager button .idx{font-family:'Doto',monospace;font-weight:700;font-size:13px;color:var(--line);transition:color .15s}
+  .pager button:hover{color:var(--ink);padding-left:6px}
+  .pager button.active{color:var(--accent)}
+  .pager button.active .idx{color:var(--accent)}
+  .pager button .bar{height:2px;background:var(--accent);width:0;transition:width .2s}
+  .pager button.active .bar{width:20px}
+
+  .aside-foot{font-size:11px;color:var(--muted);letter-spacing:.02em}
+  .aside-foot a{color:var(--muted)}
+
+  body, body *, h1, h2, h3, h4, h5, h6, p, span, a, button, input, textarea, li, div { font-family: 'Geist Pixel', sans-serif !important; }
+
+  /* ---------- Stage ---------- */
+  main{position:relative;overflow:hidden}
+  .panel{
+    position:absolute;inset:0;padding:60px 68px;
+    display:flex;flex-direction:column;justify-content:center;
+    visibility:hidden;opacity:0;pointer-events:none;
+  }
+  .panel.active{visibility:visible;opacity:1;pointer-events:auto;animation:powerOn .42s steps(1,end)}
+  /* LED "power-on" flicker to match the clock aesthetic */
+  @keyframes powerOn{
+    0%{opacity:0}8%{opacity:.35}16%{opacity:0}24%{opacity:.6}32%{opacity:.15}
+    44%{opacity:.85}56%{opacity:.4}68%{opacity:1}80%{opacity:.7}100%{opacity:1}
+  }
+  .kicker{font-family:'Doto',monospace;font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  h1{font-family:'Doto',monospace;font-weight:700;font-size:clamp(32px,4.2vw,52px);line-height:1.02;letter-spacing:.01em}
+  h2{font-family:'Doto',monospace;font-weight:700;font-size:clamp(28px,4vw,46px);letter-spacing:.02em;margin-bottom:22px}
+  .lead{font-size:clamp(15px,1.6vw,18px);max-width:560px;color:var(--ink);margin-top:20px;line-height:1.7}
+  .lead .ln{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent)}
+  .muted{color:var(--muted)}
+
+  .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+  .btn{font-size:13px;font-weight:500;text-decoration:none;padding:11px 20px;border-radius:6px;border:1px solid var(--ink);color:var(--ink);background:var(--surface);transition:transform .1s,box-shadow .15s,background .15s,color .15s;display:inline-block;letter-spacing:.02em}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn-primary:hover{box-shadow:0 6px 16px rgba(47,111,102,.3)}
+  .btn:not(.btn-primary):hover{border-color:var(--accent);color:var(--accent)}
+
+  /* Home */
+  .home{display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center}
+  .pud{display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none}
+  .pud img{width:min(290px,30vw);height:auto;display:block;filter:drop-shadow(0 16px 20px rgba(30,40,40,.22));cursor:pointer;animation:float 5s ease-in-out infinite;border-radius:12px}
+  .pud img:hover{animation:jiggle .6s ease}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  @keyframes jiggle{0%{transform:scale(1,1)}25%{transform:scale(1.07,.92)}50%{transform:scale(.95,1.06)}75%{transform:scale(1.03,.98)}100%{transform:scale(1,1)}}
+  .plate{width:min(290px,30vw);height:32px;margin-top:-8px;border-radius:50%;background:radial-gradient(ellipse at 50% 35%,#fff,#e3e2d6 70%,#d3d2c4);box-shadow:0 14px 22px rgba(30,40,40,.16)}
+  .poke{margin-top:10px;font-size:11px;color:var(--muted);min-height:15px;letter-spacing:.03em}
+
+  /* Work */
+  .jobs{display:flex;flex-direction:column;gap:16px;max-width:740px}
+  .job{display:grid;grid-template-columns:190px 1fr;gap:20px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+  .job:last-child{border-bottom:none}
+  .job .when{font-size:12px;color:var(--muted)}
+  .job .org{font-size:12px;color:var(--accent);margin-top:3px;line-height:1.35}
+  .job .role-t{font-family:'Doto',monospace;font-weight:700;font-size:17px;margin-bottom:6px}
+  .job ul{list-style:none}
+  .job li{position:relative;padding-left:16px;font-size:13.5px;color:var(--ink);margin-bottom:3px;line-height:1.5}
+  .job li::before{content:"›";position:absolute;left:0;top:0;color:var(--accent)}
+  @media(max-width:900px){.job{grid-template-columns:1fr;gap:4px}}
+
+  /* Projects */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:900px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;transition:transform .16s,box-shadow .2s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(30,40,40,.12)}
+  .card .m{aspect-ratio:16/11;background:var(--accent-soft);overflow:hidden}
+  .card .m img{width:100%;height:100%;object-fit:cover;display:block}
+  .card .b{padding:13px 15px 16px}
+  .card .t{font-family:'Doto',monospace;font-weight:700;font-size:15px;margin-bottom:4px}
+  .card .meta{font-size:10.5px;color:var(--muted);margin-bottom:7px}
+  .card .d{font-size:13px;color:var(--muted);line-height:1.45}
+  .card.feat{border-color:var(--accent)}
+  .pill{display:inline-block;font-size:10px;background:var(--accent);color:#fff;padding:2px 8px;border-radius:999px;margin-bottom:7px}
+  @media(max-width:820px){.cards{grid-template-columns:1fr 1fr}}
+
+  /* Details */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:50px;max-width:760px}
+  .two h3{font-family:'Doto',monospace;font-weight:700;font-size:15px;margin-bottom:3px}
+  .two .sub{font-size:13px;color:var(--muted)}
+  .krow{margin-top:15px}
+  .krow .k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{font-size:12px;background:var(--surface);border:1px solid var(--line);padding:4px 10px;border-radius:6px;transition:border-color .15s,color .15s}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  @media(max-width:640px){.two{grid-template-columns:1fr;gap:30px}}
+
+  /* Book Club */
+  .shelf{display:flex;gap:16px;flex-wrap:wrap;max-width:820px;margin-top:6px}
+  .book{width:150px;height:210px;border-radius:4px 7px 7px 4px;padding:16px 14px;display:flex;flex-direction:column;justify-content:space-between;color:#f6f5ec;position:relative;box-shadow:4px 6px 14px rgba(30,40,40,.22);border-left:6px solid rgba(0,0,0,.25)}
+  .book .bt{font-family:'Doto',monospace;font-weight:700;font-size:14px;line-height:1.15}
+  .book .ba{font-size:11px;opacity:.85}
+  .book .tagnow{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;background:rgba(255,255,255,.25);padding:2px 6px;border-radius:4px;align-self:flex-start}
+  .book.now{background:linear-gradient(160deg,#2f6f66,#20504a)}
+  .book.add{background:transparent;color:var(--muted);border:1.5px dashed var(--line);box-shadow:none;border-left:1.5px dashed var(--line);align-items:center;justify-content:center;text-align:center;font-size:12px}
+  .book.sugg{background:linear-gradient(160deg,#4a4f5a,#2f333b);height:auto;min-height:210px}
+  .book .bc{font-size:10px;font-style:italic;opacity:.92;margin-top:6px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+  #sComment{flex-basis:100%}
+  .suggest{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px;max-width:560px}
+  .suggest input{font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);flex:1;min-width:150px}
+  .suggest input:focus{outline:none;border-color:var(--accent)}
+  .suggest button{font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 18px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:6px;cursor:pointer;transition:transform .1s}
+  .suggest button:active{transform:translateY(1px)}
+  .ta-wrap{position:relative;flex:1;min-width:170px}
+  .ta-wrap input{width:100%}
+  .ta-drop{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 28px rgba(30,40,40,.16);z-index:30;max-height:290px;overflow:auto;display:none}
+  .ta-drop.open{display:block}
+  .ta-item{display:flex;gap:10px;padding:8px 10px;cursor:pointer;align-items:center;border-bottom:1px solid var(--line)}
+  .ta-item:last-child{border-bottom:none}
+  .ta-item:hover{background:var(--accent-soft)}
+  .ta-item img{width:30px;height:44px;object-fit:cover;border-radius:2px;background:var(--bg-2);flex:none}
+  .ta-item .ti{font-size:12.5px;line-height:1.25;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--ink)}
+  .ta-item .ta-au{color:var(--muted);font-size:11px;font-weight:400;margin-top:1px}
+  .book.now{position:relative;background-size:cover;background-position:center}
+  .club-note{font-size:12px;color:var(--muted);margin-top:18px;max-width:560px;line-height:1.6}
+
+  @media(max-width:820px){
+    body{overflow:auto}
+    .app{grid-template-columns:1fr;height:auto;min-height:100vh}
+    aside{flex-direction:column;align-items:flex-start;gap:14px;padding:18px 22px;border-right:none;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;background:var(--bg)}
+    .clock{margin-top:0}
+    .pager{flex-direction:row;flex-wrap:wrap;gap:14px;margin-top:0}
+    .pager button{padding:4px 0}.pager button .bar{display:none}
+    .aside-foot{display:none}
+    main{overflow:visible}
+    .panel{position:relative;inset:auto;visibility:visible;opacity:1;pointer-events:auto;padding:40px 24px;display:none;animation:none}
+    .panel.active{display:flex}
+    .home{grid-template-columns:1fr;gap:24px}
+  }
+
+  .navarrows{position:absolute;bottom:24px;right:32px;display:flex;align-items:center;gap:14px}
+  .navarrows .counter{font-family:'Doto',monospace;font-weight:700;font-size:13px;color:var(--muted)}
+  .navarrows button{all:unset;cursor:pointer;font-size:20px;color:var(--muted);width:30px;height:30px;text-align:center;border:1px solid var(--line);border-radius:6px;line-height:28px;transition:.15s}
+  .navarrows button:hover{color:var(--accent);border-color:var(--accent)}
+  @media(max-width:820px){.navarrows{display:none}}
+</style>
 </head>
 <body>
-	<div class="container">
-		<div class="column">
-			<br>
-			<h1>Sheenna Lee</h1>
-			<h3>Software Engineer</h3>
-			<br>
-			<button id="button-50" class="button-50" role="button" onclick="window.open('assets/Resume_Sheenna202508.pdf', '_blank')">Resume</button>  &nbsp&nbsp
-			<button class="button-50" role="button" onclick="window.open('https://github.com/sheenna', '_blank')">Github</button> &nbsp&nbsp
-			<button class="button-50" role="button" onclick="window.open('https://www.linkedin.com/in/sheenna/', '_blank')">LinkedIn</button>
+<div class="app">
 
-			<br><br>
-			<h3>About Me</h3>
-			<p>I'm a Computer Science graduate with too many interests and too little time.<br>
-			Currently looking for an opportunity - I'd love to learn as much as I can!<br><br>
-			I'm currently reading <s>(and scribbling outraged margin notes in!)</s><br> <i> Invisible Women: Data Bias in a World Designed For Men</i><br>
-			
-			Some of my interests that come to mind are linguistics, visual and narrative media, poetry, database design, gardening, and philosophy. I'm a big reader.<br>
-			
-			I am a firm believer that everyone has something they're just a little bit of an expert in, something they're excited about - I want to be the person hearing about it, making ideas come to life, and bringing people closer to their dreams.
-		<br>(Updated January 2026)</small></p>
-			<h3>Education</h3>
-			<p><b>Bachelors of Science, Computer Science</b><br>Western Governors University<br>Graduated April 2024 </p>
-			<h3>Certifications and Skills</h3>
-			<p><b>IT Information Library Foundations (ITIL)</b><br>Axelos<br>November 2020<br><br><b>Project+</b><br>CompTIA<br>March 2019<br><br>
-			<b>Programming and Scripting Languages:</b> Java, Python, C++, SQL (MySQL, PostgreSQL), HTML, CSS<br>
-			<b>Tools:</b> Git, GitHub, VS Code, Visual Studio<br>
-			<b>Software Development Methodologies:</b> Agile (Scrum, Kanban), Test-Driven Development (TDD), Continuous Integration & Continuous Deployment (CI/CD)</p>
-		</div>
-		 <div class="column">
-			<br>
-			<h3>Projects</h3>
-			<div style="text-align: center;"><img src="assets/crmapplp.png" alt="CRM Application Preview" class="image"></div>
-			<p><b>CRM Application</b> 
-			<br>Java, JavaFX, MySQL Server 8	<br>January 2023<br>
-			• Java application for appointment and customer management, uses JDBC to connect to external MySQL database for all relevant data, and uses JavaFX for a user-friendly GUI. Includes appointment and customer creation or modification, reminder notifications, input validation, login authentication, and simple report creation.<br><br></p>
-			
-			<div style="text-align: center;"><img src="assets/invmgmtp.png" alt="Inventory Management Application Preview" class="image"></div>
-			<p><b>Inventory Management Application</b> 
-			<br>Java, JavaFX	<br>February 2021<br>
-			• Java application that manages parts and products for an inventory management system, uses JavaFX for a user-friendly GUI. Ability to add custom parts and products with auto-generated IDs as well as selecting vendors.</p>
-            
-			<div style="text-align: center;"><img src="assets/pudding.gif" alt="Twirling pudding with a cherry on top" class="image"></div>
-            <p><b>3D Animation of pudding</b>
-            <br>Nomad Sculpt    <br>August 2025<br>
-            • Created in Nomad Sculpt on iPad. Doesn't it look delicious?</p>
-			<h3>Experience</h3>
-			<p><b>Service Manager</b><br>CS2K Services, Upland, CA	<br>October 2021 to December 2023<br>
-			• Managed a team of technicians, overseeing workflow and quality assurance for 50-100 simultaneous IT support projects across Windows, Mac, and Linux platforms and network infrastructures.<br>
-			• Served as primary customer liaison, discerning client objectives, translating them into actionable plans, and ensuring efficient project delivery.<br>
-			• Facilitated major software systems update and full-scale administrative overhaul with process improvements and training in help desk software and project management tools, resulting in a 28% increase in technician efficiency and 94% customer satisfaction rate.</p>
-            <p><b>Automated Systems Technician</b><br>San Bernardino County - Department of Behavioral Health, San Bernardino, CA    <br>April 2024 to April 2025<br>
-            • Administered and maintained data processing equipment for a department serving over a thousand employees, ensuring uninterrupted workflow and reliability.<br>
-            • Developed and documented procedures for system support, setup, maintenance, backup, and security. Automated recurring tasks including parts of onboarding and documentation.<br>
-            • Coordinated installation, deployment, maintenance, and upgrades of computer products and software, while training employees on new and existing applications for seamless integration.</br>
-            • Managed identity and access control to uphold system security, compliance, and operational eﬃciency.</p>
-		</div>
-	</div>
-	<footer class="footer"> 
-		<a target="_blank" href="https://icons8.com/icon/3tC9EQumUAuq/github">GitHub</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>	
-	</footer>
+  <aside>
+    <div>
+      <div class="name">Sheenna<br>Lee</div>
+      <div class="role">// systems &amp; software engineer</div>
+      <div class="clock"><span id="clock">--:--:--</span><span class="d" id="date">loading</span></div>
+      <nav class="pager" id="pager">
+        <button data-p="0" class="active"><span class="idx">01</span> Home <span class="bar"></span></button>
+        <button data-p="1"><span class="idx">02</span> Work <span class="bar"></span></button>
+        <button data-p="2"><span class="idx">03</span> Projects <span class="bar"></span></button>
+        <button data-p="3"><span class="idx">04</span> Details <span class="bar"></span></button>
+        <button data-p="4"><span class="idx">05</span> Book Club <span class="bar"></span></button>
+        <button data-p="5"><span class="idx">06</span> Say hi <span class="bar"></span></button>
+      </nav>
+    </div>
+    <div class="aside-foot">
+      Ontario, CA · est. 1995<br>
+      <a href="https://github.com/sheenna" target="_blank" rel="noopener">GitHub</a> ·
+      <a href="https://www.linkedin.com/in/sheenna/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </aside>
+
+  <main id="stage">
+    <!-- 01 Home -->
+    <section class="panel active home" data-panel="0">
+      <div>
+        <p class="kicker">systems &amp; software engineer</p>
+        <h1>Hi, I'm<br>Sheenna.</h1>
+        <p class="lead">I build systems that make work quieter: automation, IT operations, and tools people actually like using. Off the clock I read, draw, and get lost in live-action D&amp;D. I also sculpt <a class="ln" data-goto="2">3D pudding</a>.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="assets/Resume_Sheenna202508.pdf" target="_blank" rel="noopener">Resume ↗</a>
+          <a class="btn" data-goto="5" href="#">Get in touch</a>
+        </div>
+      </div>
+      <div class="pud">
+        <img id="pud" src="assets/pudding.gif" alt="A 3D pudding with a cherry on top, sculpted by Sheenna">
+        <div class="plate"></div>
+        <div class="poke" id="poke"></div>
+      </div>
+    </section>
+
+    <!-- 02 Work -->
+    <section class="panel" data-panel="1">
+      <p class="kicker">where i've worked</p>
+      <h2>Work</h2>
+      <div class="jobs">
+        <div class="job">
+          <div><div class="when">Apr 2026 - present</div><div class="org">RH - Ontario Home Delivery &amp; Distribution Center</div></div>
+          <div>
+            <div class="role-t">Associate Systems Engineer</div>
+            <ul>
+              <li>Sole on-site engineer for a luxury furniture distribution center - triage, research, and resolve first-level incidents across warehouse and office operations.</li>
+              <li>Administer warehouse hardware: Zebra RF guns, Zebra wireless &amp; thermal printers, Dell desktops/laptops, and mobile devices, keeping floor operations uninterrupted.</li>
+              <li>Manage identity &amp; access through Okta, Intune, and Active Directory; device enrollment via Autopilot plus technical on/off-boarding.</li>
+              <li>Log &amp; track incidents in ServiceNow and build out staff knowledge bases for support continuity.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="job">
+          <div><div class="when">Apr 2024 - Apr 2025</div><div class="org">San Bernardino County - DBH</div></div>
+          <div>
+            <div class="role-t">Automated Systems Technician</div>
+            <ul>
+              <li>Maintained data-processing equipment for a department of 1,000+ employees.</li>
+              <li>Built &amp; documented support/backup/security procedures; automated recurring tasks incl. onboarding.</li>
+              <li>Ran identity &amp; access control and automated technical on/off-boarding.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="job">
+          <div><div class="when">Oct 2021 - Dec 2023</div><div class="org">TECHDOCS</div></div>
+          <div>
+            <div class="role-t">Service Manager</div>
+            <ul>
+              <li>Led &amp; trained technicians handling 50-100 daily IT tickets across Windows, Mac, Linux.</li>
+              <li>Drove a systems update &amp; admin overhaul; primary client liaison on projects.</li>
+              <li>Managed vendor procurement, asset management, and inventory.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 Projects -->
+    <section class="panel" data-panel="2">
+      <p class="kicker">things i've made</p>
+      <h2>Projects</h2>
+      <div class="cards">
+        <div class="card feat">
+          <div class="m"><img src="assets/pudding.gif" alt="3D pudding animation"></div>
+          <div class="b"><span class="pill">the mascot</span><div class="t">3D Pudding</div><div class="meta">Nomad Sculpt · Aug 2025</div><div class="d">Sculpted &amp; animated on iPad. Cherry non-negotiable.</div></div>
+        </div>
+        <div class="card">
+          <div class="m"><img src="assets/crmapplp.png" alt="CRM Application preview"></div>
+          <div class="b"><div class="t">CRM App</div><div class="meta">Java · JavaFX · MySQL 8 · 2023</div><div class="d">Appointment &amp; customer management with JDBC, reminders, validation, auth, reports.</div></div>
+        </div>
+        <div class="card">
+          <div class="m"><img src="assets/invmgmtp.png" alt="Inventory Management preview"></div>
+          <div class="b"><div class="t">Inventory Mgmt</div><div class="meta">Java · JavaFX · 2021</div><div class="d">Parts &amp; products with auto-generated IDs and vendor selection.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 Details -->
+    <section class="panel" data-panel="3">
+      <p class="kicker">the details</p>
+      <h2>Education &amp; skills</h2>
+      <div class="two">
+        <div>
+          <h3>B.S., Computer Science</h3>
+          <div class="sub">Western Governors University · 2024</div>
+          <div class="krow"><div class="k">Certifications</div><div class="chips"><span class="chip">ITIL Foundations</span><span class="chip">CompTIA Project+</span></div></div>
+        </div>
+        <div>
+          <div class="krow" style="margin-top:0"><div class="k">Languages</div><div class="chips"><span class="chip">Java</span><span class="chip">Python</span><span class="chip">C++</span><span class="chip">SQL</span><span class="chip">HTML/CSS</span></div></div>
+          <div class="krow"><div class="k">Systems &amp; IT</div><div class="chips"><span class="chip">Okta</span><span class="chip">Intune / Autopilot</span><span class="chip">Active Directory</span><span class="chip">ServiceNow</span><span class="chip">Zebra fleet</span></div></div>
+          <div class="krow"><div class="k">Tools &amp; methods</div><div class="chips"><span class="chip">Git</span><span class="chip">PowerShell</span><span class="chip">Agile</span><span class="chip">CI/CD</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 Book Club -->
+    <section class="panel" data-panel="4">
+      <p class="kicker">what i'm reading</p>
+      <h2>Book Club</h2>
+      <div class="shelf" id="shelf">
+        <div class="book now" data-title="Invisible Women Caroline Criado Perez">
+          <span class="tagnow">reading now</span>
+          <div>
+            <div class="bt">Invisible Women</div>
+            <div class="ba">Caroline Criado Perez</div>
+          </div>
+        </div>
+      </div>
+      <form class="suggest" id="suggestForm" autocomplete="off">
+        <div class="ta-wrap">
+          <input id="sTitle" type="text" placeholder="search a title..." maxlength="80" required>
+          <div class="ta-drop" id="taDrop"></div>
+        </div>
+        <input id="sAuthor" type="text" placeholder="author" maxlength="50">
+        <input id="sComment" type="text" placeholder="add a note (optional)" maxlength="140">
+        <button type="submit">suggest it</button>
+      </form>
+      <p class="club-note">Got a rec? Search, pick, and it lands on the shelf for everyone, live. Covers pulled in automatically; anything off can be removed. <span id="sMsg"></span></p>
+    </section>
+
+    <!-- 06 Contact -->
+    <section class="panel" data-panel="5">
+      <p class="kicker">say hi</p>
+      <h2>Let's build something.</h2>
+      <p class="lead">Want to compare notes on automation, argue about books, or grab a coffee? I'd love to hear what you're a little bit of an expert in.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="mailto:sheennaklee@gmail.com">Email me ↗</a>
+        <a class="btn" href="https://www.linkedin.com/in/sheenna/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </section>
+
+    <div class="navarrows">
+      <button id="prev" aria-label="previous">‹</button>
+      <span class="counter" id="counter">01 / 06</span>
+      <button id="next" aria-label="next">›</button>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const panels=[...document.querySelectorAll('.panel')];
+  const btns=[...document.querySelectorAll('.pager button')];
+  const counter=document.getElementById('counter');
+  let cur=0;
+  function go(i){
+    i=(i+panels.length)%panels.length;               // wraps around
+    panels.forEach((p,n)=>p.classList.toggle('active',n===i));
+    btns.forEach((b,n)=>b.classList.toggle('active',n===i));
+    counter.textContent=String(i+1).padStart(2,'0')+' / '+String(panels.length).padStart(2,'0');
+    cur=i;
+    if(window.innerWidth<=820)window.scrollTo({top:0,behavior:'smooth'});
+  }
+  btns.forEach(b=>b.addEventListener('click',()=>go(+b.dataset.p)));
+  document.querySelectorAll('[data-goto]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();go(+el.dataset.goto)}));
+  document.getElementById('next').addEventListener('click',()=>go(cur+1));
+  document.getElementById('prev').addEventListener('click',()=>go(cur-1));
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);});
+
+  // live digital clock
+  const clk=document.getElementById('clock'),dt=document.getElementById('date');
+  function tick(){const n=new Date();const p=x=>String(x).padStart(2,'0');
+    let h=n.getHours();const ap=h>=12?'PM':'AM';h=h%12||12;
+    clk.textContent=p(h)+':'+p(n.getMinutes())+':'+p(n.getSeconds())+' '+ap;
+    dt.textContent=n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}).toUpperCase();}
+  tick();setInterval(tick,1000);
+
+  // ===================== Book Club =====================
+  const OL='https://openlibrary.org/search.json';
+  const coverUrl=(id,sz)=> id ? 'https://covers.openlibrary.org/b/id/'+id+'-'+sz+'.jpg' : '';
+  const shelf=document.getElementById('shelf');
+  const tIn=document.getElementById('sTitle'),aIn=document.getElementById('sAuthor'),drop=document.getElementById('taDrop');
+  const sMsg=document.getElementById('sMsg'),sf=document.getElementById('suggestForm');
+
+  /* -------- Supabase (live shared shelf) --------
+     Setup steps are in BOOKCLUB-SETUP.md. URL + publishable key below.        */
+  const SUPABASE_URL='https://qqfeuvnnatzfljyivqfg.supabase.co';
+  const SUPABASE_ANON='sb_publishable_bNmTuq190lSMX3LkQhybuw_QJa9EAZp';
+  const REPO='sheenna/sheenna.github.io';   // GitHub fallback; change if repo name differs
+  const LIVE = SUPABASE_URL.indexOf('http')===0 && SUPABASE_ANON.length>20 && window.supabase;
+  const sb = LIVE ? window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON) : null;
+
+  // auto cover art for curated shelf books
+  document.querySelectorAll('.book[data-title]').forEach(async b=>{
+    try{const r=await fetch(OL+'?q='+encodeURIComponent(b.dataset.title)+'&limit=1&fields=cover_i');
+      const j=await r.json();const id=j.docs&&j.docs[0]&&j.docs[0].cover_i;
+      if(id)b.style.backgroundImage='linear-gradient(160deg,rgba(20,45,40,.45),rgba(12,28,25,.9)), url('+coverUrl(id,'M')+')';
+    }catch(e){}
+  });
+
+  // render a reader-suggested card (dedup by id so optimistic + realtime don't double)
+  const seen=new Set();
+  function addCard(row){
+    if(row.id!=null){if(seen.has(row.id))return;seen.add(row.id);}
+    const el=document.createElement('div');el.className='book sugg';
+    el.innerHTML='<span class="tagnow">suggested</span><div><div class="bt"></div><div class="ba"></div><div class="bc"></div></div>';
+    el.querySelector('.bt').textContent=row.title;
+    el.querySelector('.ba').textContent=row.author||'anonymous';
+    if(row.comment)el.querySelector('.bc').textContent='"'+row.comment+'"';
+    if(row.cover_id){el.style.backgroundImage='linear-gradient(160deg,rgba(35,38,45,.55),rgba(18,20,26,.94)), url('+coverUrl(row.cover_id,'M')+')';el.style.backgroundSize='cover';el.style.backgroundPosition='center';}
+    shelf.appendChild(el);
+  }
+
+  // load existing + subscribe for live inserts
+  if(LIVE){
+    sb.from('book_suggestions').select('*').order('created_at',{ascending:true})
+      .then(({data})=>{(data||[]).forEach(addCard);});
+    sb.channel('bc').on('postgres_changes',{event:'INSERT',schema:'public',table:'book_suggestions'},p=>addCard(p.new)).subscribe();
+  }
+
+  // typeahead search
+  let selCover=null,tmr=null;
+  tIn.addEventListener('input',()=>{
+    selCover=null;const q=tIn.value.trim();clearTimeout(tmr);
+    if(q.length<3){drop.classList.remove('open');drop.innerHTML='';return;}
+    tmr=setTimeout(async()=>{
+      try{
+        const r=await fetch(OL+'?title='+encodeURIComponent(q)+'&limit=6&fields=title,author_name,cover_i,first_publish_year');
+        const j=await r.json();const docs=(j.docs||[]).slice(0,6);
+        if(!docs.length){drop.classList.remove('open');return;}
+        drop.innerHTML='';
+        docs.forEach(d=>{
+          const it=document.createElement('div');it.className='ta-item';
+          const au=(d.author_name&&d.author_name[0])||'';const yr=d.first_publish_year||'';
+          it.innerHTML='<img alt=""><div><div class="ti"></div><div class="ta-au"></div></div>';
+          const img=it.querySelector('img');
+          if(d.cover_i){img.src=coverUrl(d.cover_i,'S');img.onerror=()=>img.style.visibility='hidden';}else{img.style.visibility='hidden';}
+          it.querySelector('.ti').textContent=d.title;
+          it.querySelector('.ta-au').textContent=[au,yr].filter(Boolean).join(' · ');
+          it.addEventListener('click',()=>{tIn.value=d.title;aIn.value=au;selCover=d.cover_i||null;drop.classList.remove('open');});
+          drop.appendChild(it);
+        });
+        drop.classList.add('open');
+      }catch(e){drop.classList.remove('open');}
+    },300);
+  });
+  document.addEventListener('click',e=>{if(!drop.contains(e.target)&&e.target!==tIn)drop.classList.remove('open');});
+
+  // submit: insert into Supabase (live) or fall back to a GitHub issue
+  sf.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const t=tIn.value.trim();if(!t)return;const a=aIn.value.trim();
+    let cover=selCover;
+    if(!cover){try{const r=await fetch(OL+'?title='+encodeURIComponent(t)+'&limit=1&fields=cover_i');const j=await r.json();cover=(j.docs&&j.docs[0]&&j.docs[0].cover_i)||null;}catch(e){}}
+    if(LIVE){
+      const c=document.getElementById('sComment').value.trim();
+      const {data,error}=await sb.from('book_suggestions').insert({title:t,author:a||null,cover_id:cover?String(cover):null,comment:c||null}).select();
+      if(error){sMsg.textContent='Could not post that, try again?';}
+      else{if(data&&data[0])addCard(data[0]);sMsg.textContent='Added to the shelf. Thanks!';}
+    }else{
+      const title=encodeURIComponent('Book suggestion: '+t);
+      const body=encodeURIComponent('Title: '+t+(a?('\nAuthor: '+a):'')+(cover?('\nCover: '+coverUrl(cover,'M')):'')+'\n\n(suggested via the site)');
+      window.open('https://github.com/'+REPO+'/issues/new?labels=book-suggestion&title='+title+'&body='+body,'_blank','noopener');
+      sMsg.textContent='Opening GitHub to post it. Thanks!';
+    }
+    sf.reset();selCover=null;
+  });
+
+  // pudding poke
+  const pud=document.getElementById('pud'),poke=document.getElementById('poke');let k=0;
+  const lines=['','you poked the pudding','it jiggles','still delicious','ok you really like pudding'];
+  pud.addEventListener('click',()=>{k++;poke.textContent=k>=lines.length?'🍮 × '+k:lines[k];});
+</script>
 </body>
 </html>
